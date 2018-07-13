@@ -9,40 +9,63 @@ window.onload = () => {
     let max = document.getElementById('max');
     let fileInput = document.getElementById('fileInput');
 
+    /**
+     * reset labels  
+     * @param {string} - minimum difference 
+     * @param {string} - maximum difference
+     */
     let init = (min, max) => {
         min.innerText = '';
         max.innerText = '';
     }
 
+    init(min, max);
+
+    /**
+     * check whether file extension is dat 
+     * @param {string} ext 
+     */
     let matchDatExtension = ext => {
         return /(dat)$/ig.test(ext);
     }
 
+    /**
+     * result of checking file type 
+     * @param {object} file 
+     */
     let checkFileType = file => {
         let ext = file.name.substr((file.name.lastIndexOf('.') + 1));
         return matchDatExtension(ext);
     }
 
+    /**
+     * replace the original string with replacement string if it matches the regular expression
+     * @param {string} original 
+     * @param {string} regx 
+     * @param {string} replacement 
+     */
     let replace = (original, regx, replacement) => {
         return original.replace(regx, replacement);
     }
 
-    // let removeSpecialCharacters = obj => {
-    //     return obj.replace(/[^0-9. ]/g, "")
-    // }
-
+    /**
+     * sort array by object.Diff element in acsending order
+     * @param {object} a 
+     * @param {object} b 
+     */
     let sortArray = (a, b) => {
         return a.Diff > b.Diff ? 1 : -1;
     }
 
-    init(min, max);
-
-    fileInput.addEventListener("change", () => {
+    /**
+     * event trigerred when file is changed
+     */
+    let fileChanged = () => {
         init(min, max);
 
         let file = fileInput.files[0]; //single file
 
-        if (checkFileType(file)) { //check file type
+        if (checkFileType(file)) {
             let reader = new FileReader();
 
             reader.onload = () => {
@@ -54,13 +77,13 @@ window.onload = () => {
                 for (let i = 2; i < lines.length; i++) { //start with the 3rd line
                     let line = replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
 
-                    let mxt = parseFloat(replace(line[1], /[^0-9. ]/g, '')); //line[1]: MxT
-                    let mnt = parseFloat(replace(line[2], /[^0-9. ]/g, '')); //line[2]: Mnt
+                    let mxt = parseFloat(replace(line[1], /[^0-9. ]/g, '')); //MxT
+                    let mnt = parseFloat(replace(line[2], /[^0-9. ]/g, '')); //Mnt
 
-                    diff.push({ Dy: line[0], Diff: Math.abs(mxt - mnt) }); //line[0]: Dy
+                    diff.push({ Dy: line[0], Diff: Math.abs(mxt - mnt) });
                 }
 
-                diff.sort(sortArray); // in ascending order
+                diff.sort(sortArray);
                 min.innerText = diff[0].Dy;
                 max.innerText = diff[diff.length - 1].Dy;
             }
@@ -69,5 +92,7 @@ window.onload = () => {
         } else {
             alert("File not supported!");
         }
-    });
+    }
+
+    fileInput.addEventListener("change", fileChanged);
 };
