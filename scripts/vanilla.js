@@ -44,13 +44,11 @@ class Weather {
     }
 
     /**
-     * return difference between MxT and MnT
-     * @param {array} lines 
+     * assign deltas
      */
-    getDeltas(lines) {
+    dataTransform(lines) {
         for (let i = 2; i < lines.length; i++) { //start with the 3rd line
             let line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
-
 
             let mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
             let mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
@@ -60,21 +58,29 @@ class Weather {
                 Deltas: Math.abs(mxt - mnt)
             });
         }
-
         this._deltas.sort(this.sortArray);
+    }
+
+    /**
+     * return difference between MxT and MnT
+     * @param {array} lines 
+     */
+    getDeltas(lines) {
+        this.dataTransform(lines);
         return [this._deltas[0].Dy, this._deltas[this._deltas.length - 1].Dy];
     }
 }
 
-// below is the client : 
-let fileInput = document.getElementById('fileInput');
-let min = document.getElementById('min');
-let max = document.getElementById('max');
+/**
+ * client part
+ */
+document.getElementById('fileInput').addEventListener("change", fileChanged);
 
-fileInput.addEventListener("change", fileChanged);
-
+/**
+ * trigger file changed event
+ */
 function fileChanged() {
-    let file = fileInput.files[0]; //single file
+    let file = document.getElementById('fileInput').files[0]; //single file
     const w = new Weather();
 
     if (w.checkFileType(file.name)) {
@@ -84,14 +90,13 @@ function fileChanged() {
             let lines = content.split('\n');
             let result = w.getDeltas(lines);
 
-            min.innerText = result[0];
-            max.innerText = result[1];
+            document.getElementById('min').innerText = result[0];
+            document.getElementById('max').innerText = result[1];
         }
         reader.readAsText(file);
     } else {
         alert("File not supported!");
-        min.innerText = '';
-        min.innerText = '';
+        document.getElementById('min').innerText = '';
+        document.getElementById('max').innerText = '';
     }
-
 }
