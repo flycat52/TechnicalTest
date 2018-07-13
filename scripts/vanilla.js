@@ -3,29 +3,16 @@
  * Data: 13/07/2018
  * JS version : ES6 
  */
-
-window.onload = () => {
-    let min = document.getElementById('min');
-    let max = document.getElementById('max');
-    let fileInput = document.getElementById('fileInput');
-
-    /**
-     * reset labels  
-     * @param {string} - minimum difference 
-     * @param {string} - maximum difference
-     */
-    let init = (min, max) => {
-        min.innerText = '';
-        max.innerText = '';
+class Weather {
+    constructor() {
+        this._deltas = [];
     }
-
-    init(min, max);
 
     /**
      * check whether file extension is dat 
      * @param {string} ext 
      */
-    let matchDatExtension = ext => {
+    matchDatExtension(ext) {
         return /(dat)$/ig.test(ext);
     }
 
@@ -33,9 +20,8 @@ window.onload = () => {
      * result of checking file type 
      * @param {object} file 
      */
-    let checkFileType = file => {
-        let ext = file.name.substr((file.name.lastIndexOf('.') + 1));
-        return matchDatExtension(ext);
+    checkFileType(file) {
+        return this.matchDatExtension(file.substr((file.lastIndexOf('.') + 1)));
     }
 
     /**
@@ -44,55 +30,68 @@ window.onload = () => {
      * @param {string} regx 
      * @param {string} replacement 
      */
-    let replace = (original, regx, replacement) => {
+    replace(original, regx, replacement) {
         return original.replace(regx, replacement);
     }
 
     /**
-     * sort array by object.Diff element in acsending order
+     * sort array by object.Deltas element in acsending order
      * @param {object} a 
      * @param {object} b 
      */
-    let sortArray = (a, b) => {
-        return a.Diff > b.Diff ? 1 : -1;
+    sortArray(a, b) {
+        return a.Deltas > b.Deltas ? 1 : -1;
     }
 
     /**
-     * event trigerred when file is changed
+     * return difference between MxT and MnT
+     * @param {array} lines 
      */
-    let fileChanged = () => {
-        init(min, max);
+    getDeltas(lines) {
+        for (let i = 2; i < lines.length; i++) { //start with the 3rd line
+            let line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
 
-        let file = fileInput.files[0]; //single file
 
-        if (checkFileType(file)) {
-            let reader = new FileReader();
+            let mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
+            let mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
 
-            reader.onload = () => {
-                let content = reader.result;
-                let lines = content.split('\n');
-
-                let diff = [];
-
-                for (let i = 2; i < lines.length; i++) { //start with the 3rd line
-                    let line = replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
-
-                    let mxt = parseFloat(replace(line[1], /[^0-9. ]/g, '')); //MxT
-                    let mnt = parseFloat(replace(line[2], /[^0-9. ]/g, '')); //Mnt
-
-                    diff.push({ Dy: line[0], Diff: Math.abs(mxt - mnt) });
-                }
-
-                diff.sort(sortArray);
-                min.innerText = diff[0].Dy;
-                max.innerText = diff[diff.length - 1].Dy;
-            }
-
-            reader.readAsText(file);
-        } else {
-            alert("File not supported!");
+            this._deltas.push({
+                Dy: line[0],
+                Deltas: Math.abs(mxt - mnt)
+            });
         }
+
+        this._deltas.sort(this.sortArray);
+        return [this._deltas[0].Dy, this._deltas[this._deltas.length - 1].Dy];
+    }
+}
+
+// below is the client : 
+let fileInput = document.getElementById('fileInput');
+let min = document.getElementById('min');
+let max = document.getElementById('max');
+
+fileInput.addEventListener("change", fileChanged);
+
+function fileChanged() {
+    let file = fileInput.files[0]; //single file
+    const w = new Weather();
+
+    if (w.checkFileType(file.name)) {
+        let reader = new FileReader();
+        reader.onload = () => {
+            let content = reader.result;
+            let lines = content.split('\n');
+            let result = w.getDeltas(lines);
+
+            min.innerText = result[0];
+            max.innerText = result[1];
+        }
+        reader.readAsText(file);
+    } else {
+        alert("File not supported!");
+        min.innerText = '';
+        min.innerText = '';
     }
 
-    fileInput.addEventListener("change", fileChanged);
-};
+}
