@@ -1,0 +1,19 @@
+Weather data technical test
+===========================
+
+Requirements
+============
+No external libraries, build steps or transpiled languages may be used - only native browser features.
+No use of third party server APIs, e.g. no xhr/http calls - logic to be implemented in browser.
+Should work on latest Chrome or Edge browser.
+Access to internet allowed during task implementation.
+
+Create an html page that allows a user to upload the supplied weather.dat file.
+
+The page should then provide the following output:
+
+Number of the day with the minimum temperature diference MnT.
+Number of the day with the maximum temperature diference MxT.
+
+You can assume that the file will be in the same fixed width format each month it is analysed.
+Also assume that you may be asked for further information or new requirements in a fictional further development stage.
