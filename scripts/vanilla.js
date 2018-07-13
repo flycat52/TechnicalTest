@@ -39,7 +39,7 @@ window.onload = () => {
     }
 
     /**
-     * replace the original string with replacement string if it matches the regular expression
+     * replace the original string with replacement string 
      * @param {string} original 
      * @param {string} regx 
      * @param {string} replacement 
