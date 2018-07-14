@@ -33,10 +33,8 @@ class WeatherController {
     dataTransform(lines) {
         for (let i = 2; i < lines.length; i++) { //start with the 3rd line
             const line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
-
             const mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
             const mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
-
             this._deltas.push({
                 Dy: line[0],
                 Deltas: Math.abs(mxt - mnt)
@@ -89,7 +87,10 @@ class FileController {
     fileChanged() {
         const file = this._view.fileObject.files[0];
         if (this.checkFileType(file.name)) {
-            this.displayResult(file);
+            const reader = new FileReader();
+            reader.onload = () => this.displayResult(reader);
+            reader.readAsText(file);
+
         } else {
             alert("File not supported!");
             this._view.minInnerText = '';
@@ -99,17 +100,13 @@ class FileController {
 
     /**
      * display result in screen
-     * @param {object} file 
+     * @param {object} reader 
      */
-    displayResult(file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const weathercontroller = new WeatherController();
-            const result = weathercontroller.getDeltas(reader.result.split('\n'));
-            this._view.minInnerText = result[0];
-            this._view.maxInnerText = result[1];
-        }
-        reader.readAsText(file);
+    displayResult(reader) {
+        const weathercontroller = new WeatherController();
+        const result = weathercontroller.getDeltas(reader.result.split('\n'));
+        this._view.minInnerText = result[0];
+        this._view.maxInnerText = result[1];
     }
 }
 
