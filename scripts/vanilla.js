@@ -3,7 +3,7 @@
  * Data: 13/07/2018
  * JS version : ES6 
  */
-class Weather {
+class WeatherController {
     constructor() {
         this._deltas = [];
     }
@@ -55,8 +55,10 @@ class Weather {
     }
 }
 
-class ReadFile {
-    constructor() {}
+class FileController {
+    constructor() {
+        this.v = new View();
+    }
 
     /**
      * check whether file extension is dat 
@@ -78,33 +80,54 @@ class ReadFile {
      * Bind change event for fileInput element
      */
     bindChangeEvent() {
-        document.getElementById('fileInput').addEventListener("change", this.fileChanged.bind(this));
+        this.v.getFileObject().addEventListener("change", this.fileChanged.bind(this));
     }
 
     /**
      * trigger file changed event
      */
     fileChanged() {
-        let file = document.getElementById('fileInput').files[0]; //single file
+        const file = this.v.getFileObject().files[0];
 
         if (this.checkFileType(file.name)) {
-            let reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = () => {
-                const w = new Weather();
+                const w = new WeatherController();
+                const result = w.getDeltas(reader.result.split('\n'));
 
-                let content = reader.result;
-                let lines = content.split('\n');
-                let result = w.getDeltas(lines);
-
-                document.getElementById('min').innerText = result[0];
-                document.getElementById('max').innerText = result[1];
+                this.v.setMinInnerText(result[0]);
+                this.v.setMaxInnerText(result[1]);
             }
             reader.readAsText(file);
         } else {
             alert("File not supported!");
-            document.getElementById('min').innerText = '';
-            document.getElementById('max').innerText = '';
+            this.v.setMinInnerText('');
+            this.v.setMaxInnerText('');
         }
+    }
+}
+
+class View {
+    constructor() {}
+
+    getMinInnerText() {
+        return document.getElementById('min').innerText;
+    }
+
+    setMinInnerText(val) {
+        document.getElementById('min').innerText = val;
+    }
+
+    getMaxInnerText() {
+        return document.getElementById('max').innerText;
+    }
+
+    setMaxInnerText(val) {
+        document.getElementById('max').innerText = val;
+    }
+
+    getFileObject() {
+        return document.getElementById('fileInput');
     }
 }
 
@@ -112,6 +135,6 @@ class ReadFile {
  * client part
  */
 (function main() {
-    const f = new ReadFile();
+    const f = new FileController();
     f.bindChangeEvent();
 })()
