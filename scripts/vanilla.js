@@ -32,10 +32,10 @@ class WeatherController {
      */
     dataTransform(lines) {
         for (let i = 2; i < lines.length; i++) { //start with the 3rd line
-            let line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
+            const line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
 
-            let mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
-            let mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
+            const mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
+            const mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
 
             this._deltas.push({
                 Dy: line[0],
@@ -56,8 +56,8 @@ class WeatherController {
 }
 
 class FileController {
-    constructor() {
-        this.v = new View();
+    constructor(view) {
+        this._view = view;
     }
 
     /**
@@ -80,53 +80,77 @@ class FileController {
      * Bind change event for fileInput element
      */
     bindChangeEvent() {
-        this.v.getFileObject().addEventListener("change", this.fileChanged.bind(this));
+        this._view.fileObject.addEventListener("change", this.fileChanged.bind(this));
     }
 
     /**
      * trigger file changed event
      */
     fileChanged() {
-        const file = this.v.getFileObject().files[0];
-
+        const file = this._view.fileObject.files[0];
         if (this.checkFileType(file.name)) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const w = new WeatherController();
-                const result = w.getDeltas(reader.result.split('\n'));
-
-                this.v.setMinInnerText(result[0]);
-                this.v.setMaxInnerText(result[1]);
-            }
-            reader.readAsText(file);
+            this.displayResult(file);
         } else {
             alert("File not supported!");
-            this.v.setMinInnerText('');
-            this.v.setMaxInnerText('');
+            this._view.minInnerText = '';
+            this._view.maxInnerText = '';
         }
+    }
+
+    /**
+     * display result in screen
+     * @param {object} file 
+     */
+    displayResult(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const weathercontroller = new WeatherController();
+            const result = weathercontroller.getDeltas(reader.result.split('\n'));
+            this._view.minInnerText = result[0];
+            this._view.maxInnerText = result[1];
+        }
+        reader.readAsText(file);
     }
 }
 
 class View {
     constructor() {}
 
-    getMinInnerText() {
-        return document.getElementById('min').innerText;
+    /**
+     * return HTML element min innerText
+     */
+    get minIntterText() {
+        if (document.getElementById('min') == undefined) return undefined;
+        return document.getElementById('min').innerText
     }
 
-    setMinInnerText(val) {
+    /**
+     * set value of HTML element min innerText
+     */
+    set minInnerText(val) {
         document.getElementById('min').innerText = val;
     }
 
-    getMaxInnerText() {
+    /**
+     * return HTML element max innerText
+     */
+    get maxInnerText() {
+        if (document.getElementById('max') == undefined) return undefined;
         return document.getElementById('max').innerText;
     }
 
-    setMaxInnerText(val) {
+    /**
+     * set value of HTML element max innerText
+     */
+    set maxInnerText(val) {
         document.getElementById('max').innerText = val;
     }
 
-    getFileObject() {
+    /**
+     * return HTML element fileInput innerText
+     */
+    get fileObject() {
+        if (document.getElementById('fileInput') == undefined) return undefined;
         return document.getElementById('fileInput');
     }
 }
@@ -135,6 +159,7 @@ class View {
  * client part
  */
 (function main() {
-    const f = new FileController();
-    f.bindChangeEvent();
+    const view = new View();
+    const filecontroller = new FileController(view);
+    filecontroller.bindChangeEvent();
 })()
