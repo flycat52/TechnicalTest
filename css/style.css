@@ -1,0 +1,35 @@
+html,
+body {
+    height: 100%;
+    position: relative;
+}
+
+.container {
+    margin: auto;
+    width: 60%;
+    padding: 50px 20px;
+    height: 100%;
+    color: #ffffff;
+    background: #6B5B95;
+    font-family: "Segoe UI", Arial, sans-serif;
+    text-decoration: none solid rgb(255, 255, 255);
+}
+
+h1 {
+    font-size: 30px;
+    line-height: 45px;
+}
+
+.row {
+    padding-top: 20px;
+}
+
+span {
+    font-size: 18pt;
+    margin-top: 25px;
+}
+
+.text,
+input {
+    font-size: 12pt;
+}

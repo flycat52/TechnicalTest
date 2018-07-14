@@ -4,23 +4,34 @@
 <head>
     <meta charset="utf-8">
     <title>Weather</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div id="page-wrapper">
-        <h1>File Reader</h1>
-        <div>
-            Select a data file:
-            <input type="file" id="fileInput">
-        </div>
-        <p></p>
-        <div>
-            Number of the day with the minimum temperature diference MnT: <label id="min"></label>
-        </div>
-        <div>
-            Number of the day with the maximum temperature diference MxT: <label id="max"></label>
+    <div class="container">
+        <div id="page-wrapper">
+            <h1>File Processor</h1>
+            <hr>
+            <div class="row">
+                <label class="text">Please select a data file (*.dat):</label>
+                <input type="file" id="fileInput">
+            </div>
+            <div class="row">
+                <span>Results: </span>
+            </div>
+            <div class="row">
+                <label class="text">Number of the day with the minimum temperature diference MnT: </label>
+                <label id="min" class="text"></label>
+            </div>
+            <div class="row">
+                <label class="text">Number of the day with the maximum temperature diference MxT: </label>
+                <label id="max" class="text"></label>
+            </div>
+
         </div>
     </div>
+    </div>
+
     <script type="text/javascript" src="scripts/vanilla.js"></script>
 </body>
 
