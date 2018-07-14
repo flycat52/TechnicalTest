@@ -9,22 +9,6 @@ class Weather {
     }
 
     /**
-     * check whether file extension is dat 
-     * @param {string} ext 
-     */
-    matchDatExtension(ext) {
-        return /(dat)$/ig.test(ext);
-    }
-
-    /**
-     * result of checking file type 
-     * @param {object} file 
-     */
-    checkFileType(file) {
-        return this.matchDatExtension(file.substr((file.lastIndexOf('.') + 1)));
-    }
-
-    /**
      * replace the original string with replacement string 
      * @param {string} original 
      * @param {string} regx 
@@ -71,32 +55,63 @@ class Weather {
     }
 }
 
+class ReadFile {
+    constructor() {}
+
+    /**
+     * check whether file extension is dat 
+     * @param {string} ext 
+     */
+    matchDatExtension(ext) {
+        return /(dat)$/ig.test(ext);
+    }
+
+    /**
+     * result of checking file type 
+     * @param {object} file 
+     */
+    checkFileType(file) {
+        return this.matchDatExtension(file.substr((file.lastIndexOf('.') + 1)));
+    }
+
+    /**
+     * Bind change event for fileInput element
+     */
+    bindChangeEvent() {
+        document.getElementById('fileInput').addEventListener("change", this.fileChanged.bind(this));
+    }
+
+    /**
+     * trigger file changed event
+     */
+    fileChanged() {
+        let file = document.getElementById('fileInput').files[0]; //single file
+
+        if (this.checkFileType(file.name)) {
+            let reader = new FileReader();
+            reader.onload = () => {
+                const w = new Weather();
+
+                let content = reader.result;
+                let lines = content.split('\n');
+                let result = w.getDeltas(lines);
+
+                document.getElementById('min').innerText = result[0];
+                document.getElementById('max').innerText = result[1];
+            }
+            reader.readAsText(file);
+        } else {
+            alert("File not supported!");
+            document.getElementById('min').innerText = '';
+            document.getElementById('max').innerText = '';
+        }
+    }
+}
+
 /**
  * client part
  */
-document.getElementById('fileInput').addEventListener("change", fileChanged);
-
-/**
- * trigger file changed event
- */
-function fileChanged() {
-    let file = document.getElementById('fileInput').files[0]; //single file
-    const w = new Weather();
-
-    if (w.checkFileType(file.name)) {
-        let reader = new FileReader();
-        reader.onload = () => {
-            let content = reader.result;
-            let lines = content.split('\n');
-            let result = w.getDeltas(lines);
-
-            document.getElementById('min').innerText = result[0];
-            document.getElementById('max').innerText = result[1];
-        }
-        reader.readAsText(file);
-    } else {
-        alert("File not supported!");
-        document.getElementById('min').innerText = '';
-        document.getElementById('max').innerText = '';
-    }
-}
+(function main() {
+    const f = new ReadFile();
+    f.bindChangeEvent();
+})()
