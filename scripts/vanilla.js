@@ -90,7 +90,6 @@ class FileController {
             const reader = new FileReader();
             reader.onload = () => this.displayResult(reader);
             reader.readAsText(file);
-
         } else {
             alert("File not supported!");
             this._view.minInnerText = '';
