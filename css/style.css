@@ -2,6 +2,7 @@ html,
 body {
     height: 100%;
     position: relative;
+    font-size: 12pt;
 }
 
 .container {
@@ -29,7 +30,7 @@ span {
     margin-top: 25px;
 }
 
-.text,
-input {
-    font-size: 12pt;
+.result {
+    color: #000000;
+    font-weight: bold;
 }

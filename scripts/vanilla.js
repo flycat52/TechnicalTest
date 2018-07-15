@@ -3,6 +3,23 @@
  * Data: 13/07/2018
  * JS version : ES6 
  */
+
+/**
+ * Delta Model
+ * _dy: Dy
+ * _delta: MxT - MnT
+ */
+class DeltaModel {
+    constructor(dy, delta) {
+        this._dy = dy;
+        this._delta = delta;
+    }
+}
+
+/**
+ * Weather Controller
+ * data processing of the dataset
+ */
 class WeatherController {
     constructor() {
         this._deltas = [];
@@ -13,6 +30,7 @@ class WeatherController {
      * @param {string} original 
      * @param {string} regx 
      * @param {string} replacement 
+     * @return {string} replaced string
      */
     replace(original, regx, replacement) {
         return original.replace(regx, replacement);
@@ -22,23 +40,22 @@ class WeatherController {
      * sort array by object.Deltas element in acsending order
      * @param {object} a 
      * @param {object} b 
+     * @return {boolean} asc/desc
      */
     sortArray(a, b) {
-        return a.Deltas > b.Deltas ? 1 : -1;
+        return a._delta > b._delta ? 1 : -1;
     }
 
     /**
      * assign deltas
+     * @param {array} lines
      */
     dataTransform(lines) {
         for (let i = 2; i < lines.length; i++) { //start with the 3rd line
             const line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
             const mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
             const mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
-            this._deltas.push({
-                Dy: line[0],
-                Deltas: Math.abs(mxt - mnt)
-            });
+            this._deltas.push(new DeltaModel(line[0], Math.abs(mxt - mnt)));
         }
         this._deltas.sort(this.sortArray);
     }
@@ -46,13 +63,18 @@ class WeatherController {
     /**
      * return difference between MxT and MnT
      * @param {array} lines 
+     * @return {array} array of delta list
      */
     getDeltas(lines) {
         this.dataTransform(lines);
-        return [this._deltas[0].Dy, this._deltas[this._deltas.length - 1].Dy];
+        return [this._deltas[0]._dy, this._deltas[this._deltas.length - 1]._dy];
     }
 }
 
+/**
+ * File Controller
+ * file process events
+ */
 class FileController {
     constructor(view) {
         this._view = view;
@@ -61,6 +83,7 @@ class FileController {
     /**
      * check whether file extension is dat 
      * @param {string} ext 
+     * @return {boolean} match result
      */
     matchDatExtension(ext) {
         return /(dat)$/ig.test(ext);
@@ -69,6 +92,7 @@ class FileController {
     /**
      * result of checking file type 
      * @param {object} file 
+     * @return {boolean} result of checking file type
      */
     checkFileType(file) {
         return this.matchDatExtension(file.substr((file.lastIndexOf('.') + 1)));
@@ -102,22 +126,26 @@ class FileController {
      * @param {object} reader 
      */
     displayResult(reader) {
-        const weathercontroller = new WeatherController();
-        const result = weathercontroller.getDeltas(reader.result.split('\n'));
+        const weather_controller = new WeatherController();
+        const result = weather_controller.getDeltas(reader.result.split('\n'));
         this._view.minInnerText = result[0];
         this._view.maxInnerText = result[1];
     }
 }
 
+/**
+ * View
+ * Bind HTML elements
+ */
 class View {
     constructor() {}
 
     /**
      * return HTML element min innerText
      */
-    get minIntterText() {
+    get minInnerText() {
         if (document.getElementById('min') == undefined) return undefined;
-        return document.getElementById('min').innerText
+        return document.getElementById('min').innerText;
     }
 
     /**
@@ -144,6 +172,7 @@ class View {
 
     /**
      * return HTML element fileInput innerText
+     * @return
      */
     get fileObject() {
         if (document.getElementById('fileInput') == undefined) return undefined;
@@ -156,6 +185,6 @@ class View {
  */
 (function main() {
     const view = new View();
-    const filecontroller = new FileController(view);
-    filecontroller.bindChangeEvent();
+    const file_controller = new FileController(view);
+    file_controller.bindChangeEvent();
 })()
