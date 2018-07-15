@@ -6,13 +6,13 @@
 
 /**
  * Delta Model
- * _dy: Dy
- * _delta: MxT - MnT
+ * dy: Dy
+ * delta: MxT - MnT
  */
 class DeltaModel {
     constructor(dy, delta) {
-        this._dy = dy;
-        this._delta = delta;
+        this.dy = dy;
+        this.delta = delta;
     }
 }
 
@@ -22,7 +22,7 @@ class DeltaModel {
  */
 class WeatherController {
     constructor() {
-        this._deltas = [];
+        this.deltas = [];
     }
 
     /**
@@ -43,7 +43,7 @@ class WeatherController {
      * @return {boolean} asc/desc
      */
     sortArray(a, b) {
-        return a._delta > b._delta ? 1 : -1;
+        return a.delta > b.delta ? 1 : -1;
     }
 
     /**
@@ -55,9 +55,9 @@ class WeatherController {
             const line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
             const mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
             const mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
-            this._deltas.push(new DeltaModel(line[0], Math.abs(mxt - mnt)));
+            this.deltas.push(new DeltaModel(line[0], Math.abs(mxt - mnt)));
         }
-        this._deltas.sort(this.sortArray);
+        this.deltas.sort(this.sortArray);
     }
 
     /**
@@ -67,7 +67,7 @@ class WeatherController {
      */
     getDeltas(lines) {
         this.dataTransform(lines);
-        return [this._deltas[0]._dy, this._deltas[this._deltas.length - 1]._dy];
+        return [this.deltas[0].dy, this.deltas[this.deltas.length - 1].dy];
     }
 }
 
@@ -77,7 +77,7 @@ class WeatherController {
  */
 class FileController {
     constructor(view) {
-        this._view = view;
+        this.view = view;
     }
 
     /**
@@ -102,22 +102,22 @@ class FileController {
      * Bind change event for fileInput element
      */
     bindChangeEvent() {
-        this._view.fileObject.addEventListener("change", this.fileChanged.bind(this));
+        this.view.fileObject.addEventListener("change", this.fileChanged.bind(this));
     }
 
     /**
      * trigger file changed event
      */
     fileChanged() {
-        const file = this._view.fileObject.files[0];
+        const file = this.view.fileObject.files[0];
         if (this.checkFileType(file.name)) {
             const reader = new FileReader();
             reader.onload = () => this.displayResult(reader);
             reader.readAsText(file);
         } else {
             alert("File not supported!");
-            this._view.minInnerText = '';
-            this._view.maxInnerText = '';
+            this.view.minInnerText = '';
+            this.view.maxInnerText = '';
         }
     }
 
@@ -128,8 +128,8 @@ class FileController {
     displayResult(reader) {
         const weather_controller = new WeatherController();
         const result = weather_controller.getDeltas(reader.result.split('\n'));
-        this._view.minInnerText = result[0];
-        this._view.maxInnerText = result[1];
+        this.view.minInnerText = result[0];
+        this.view.maxInnerText = result[1];
     }
 }
 
