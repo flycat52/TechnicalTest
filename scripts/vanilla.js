@@ -10,9 +10,9 @@
  * delta: MxT - MnT
  */
 class DeltaModel {
-    constructor(dy, delta) {
+    constructor(dy, mxt, mnt) {
         this.dy = dy;
-        this.delta = delta;
+        this.delta = Math.abs(mxt - mnt);
     }
 }
 
@@ -55,7 +55,7 @@ class WeatherController {
             const line = this.replace(lines[i].trim(), /\s+/g, ' ').split(' '); //replace tabs to single space
             const mxt = parseFloat(this.replace(line[1], /[^0-9. ]/g, '')); //MxT
             const mnt = parseFloat(this.replace(line[2], /[^0-9. ]/g, '')); //Mnt
-            this.deltas.push(new DeltaModel(line[0], Math.abs(mxt - mnt)));
+            this.deltas.push(new DeltaModel(line[0], mxt, mnt));
         }
         this.deltas.sort(this.sortArray);
     }
